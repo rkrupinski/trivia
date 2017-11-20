@@ -2,8 +2,9 @@ module Router
     exposing
         ( init
         , update
+        , getRoute
         , Model
-        , Route
+        , Route(..)
         , Msg(UrlChange)
         )
 
@@ -25,20 +26,23 @@ type Model
     = Model (Maybe Route)
 
 
-type alias Params =
-    { roomId : String
-    , playerId : String
-    }
-
-
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
     let
         route : Maybe Route
         route =
-            getRoute location
+            computeRoute location
+
+        cmd : Cmd Msg
+        cmd =
+            case route of
+                Just _ ->
+                    Cmd.none
+
+                _ ->
+                    Navigation.newUrl "#/"
     in
-        Model route ! [ getCmd route ]
+        Model route ! [ cmd ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -46,19 +50,14 @@ update (UrlChange location) _ =
     init location
 
 
-getRoute : Navigation.Location -> Maybe Route
-getRoute location =
+computeRoute : Navigation.Location -> Maybe Route
+computeRoute location =
     Debug.log "route" <| parseHash hashParser location
 
 
-getCmd : Maybe Route -> Cmd Msg
-getCmd route =
-    case route of
-        Just _ ->
-            Cmd.none
-
-        _ ->
-            Navigation.newUrl "#/"
+getRoute : Model -> Maybe Route
+getRoute (Model route) =
+    route
 
 
 hashParser : UrlParser.Parser (Route -> a) a
