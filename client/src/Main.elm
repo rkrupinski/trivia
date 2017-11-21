@@ -2,16 +2,19 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Navigation
+import Pages.Home as HomePage
 import Router
 
 
 type Msg
-    = RouterMsg Router.Msg
+    = HomePageMsg HomePage.Msg
+    | RouterMsg Router.Msg
     | UrlChange Navigation.Location
 
 
 type alias Model =
-    { router : Router.Model
+    { homePage : HomePage.Model
+    , router : Router.Model
     }
 
 
@@ -28,26 +31,30 @@ main =
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
     let
-        ( router, cmd ) =
+        ( homePage, homePageCmd ) =
+            HomePage.init
+
+        ( router, routerCmd ) =
             Router.init location
     in
-        { router = router
-        }
-            ! [ Cmd.map RouterMsg cmd ]
+        Model homePage router
+            ! [ Cmd.map HomePageMsg homePageCmd
+              , Cmd.map RouterMsg routerCmd
+              ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ router } as model) =
+update msg ({ homePage, router } as model) =
     case msg of
-        UrlChange location ->
+        HomePageMsg homePageMsg ->
             let
-                ( router_, cmd ) =
-                    Router.update (Router.UrlChange location) router
+                ( homePage_, cmd ) =
+                    HomePage.update homePageMsg homePage
             in
                 { model
-                    | router = router_
+                    | homePage = homePage_
                 }
-                    ! [ Cmd.map RouterMsg cmd ]
+                    ! [ Cmd.map HomePageMsg cmd ]
 
         RouterMsg routerMsg ->
             let
@@ -59,10 +66,36 @@ update msg ({ router } as model) =
                 }
                     ! [ Cmd.map RouterMsg cmd ]
 
+        UrlChange location ->
+            let
+                ( router_, cmd ) =
+                    Router.update (Router.UrlChange location) router
+            in
+                { model
+                    | router = router_
+                }
+                    ! [ Cmd.map RouterMsg cmd ]
+
 
 view : Model -> Html Msg
-view model =
-    p [] [ text "Trivia" ]
+view { homePage, router } =
+    let
+        route : Maybe Router.Route
+        route =
+            Router.getRoute router
+    in
+        case route of
+            Just (Router.Home) ->
+                Html.map HomePageMsg <| HomePage.view homePage
+
+            Just (Router.View roomId) ->
+                p [] [ text <| "View: " ++ roomId ]
+
+            Just (Router.Play roomId playerId) ->
+                p [] [ text <| "Play: " ++ roomId ++ playerId ]
+
+            _ ->
+                text ""
 
 
 subscriptions : Model -> Sub Msg

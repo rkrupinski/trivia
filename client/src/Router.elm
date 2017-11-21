@@ -10,12 +10,14 @@ module Router
 
 import Navigation
 import UrlParser exposing ((</>), top, string, oneOf, map, parseHash)
+import Data.Game exposing (GameId)
+import Data.Player exposing (PlayerId)
 
 
 type Route
     = Home
-    | View String
-    | Play String String
+    | View GameId
+    | Play GameId PlayerId
 
 
 type Msg
@@ -52,7 +54,7 @@ update (UrlChange location) _ =
 
 computeRoute : Navigation.Location -> Maybe Route
 computeRoute location =
-    Debug.log "route" <| parseHash hashParser location
+    parseHash hashParser location
 
 
 getRoute : Model -> Maybe Route
