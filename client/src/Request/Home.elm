@@ -7,7 +7,7 @@ import Data.Game as Game exposing (Game)
 
 newGame : Http.Request Game
 newGame =
-    "https://httpbin.org/post"
+    "http://localhost:4000/games"
         |> HttpBuilder.post
         |> HttpBuilder.withExpect (Http.expectJson Game.decoder)
         |> HttpBuilder.toRequest

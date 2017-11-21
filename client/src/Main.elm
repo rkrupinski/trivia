@@ -88,11 +88,11 @@ view { homePage, router } =
             Just (Router.Home) ->
                 Html.map HomePageMsg <| HomePage.view homePage
 
-            Just (Router.View roomId) ->
-                p [] [ text <| "View: " ++ roomId ]
+            Just (Router.View gameId) ->
+                p [] [ text <| "View: " ++ (toString gameId) ]
 
-            Just (Router.Play roomId playerId) ->
-                p [] [ text <| "Play: " ++ roomId ++ playerId ]
+            Just (Router.Play gameId playerId) ->
+                p [] [ text <| "Play: " ++ (toString gameId) ++ (toString playerId) ]
 
             _ ->
                 text ""

@@ -9,7 +9,7 @@ import Json.Decode as Decode
 
 
 type alias GameId =
-    String
+    Int
 
 
 type alias Game =
@@ -19,4 +19,4 @@ type alias Game =
 
 decoder : Decode.Decoder Game
 decoder =
-    Decode.map Game <| Decode.field "id" Decode.string
+    Decode.map Game <| Decode.field "id" Decode.int

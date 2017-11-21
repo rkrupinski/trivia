@@ -11,6 +11,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
+import Navigation
 import Request.Home exposing (newGame)
 import Data.Game exposing (Game)
 
@@ -44,19 +45,27 @@ update msg (Model model) =
                 }
                 ! [ Http.send GameStarted newGame ]
 
-        GameStarted (Ok game) ->
-            Model
-                { model
-                    | pending = False
-                }
-                ! []
+        GameStarted (Ok { id }) ->
+            let
+                _ =
+                    Debug.log "ok" id
+            in
+                Model
+                    { model
+                        | pending = False
+                    }
+                    ! [ Navigation.newUrl <| "#/" ++ (toString id) ]
 
-        GameStarted (Err _) ->
-            Model
-                { model
-                    | pending = False
-                }
-                ! []
+        GameStarted (Err err) ->
+            let
+                _ =
+                    Debug.log "nope" err
+            in
+                Model
+                    { model
+                        | pending = False
+                    }
+                    ! []
 
 
 view : Model -> Html Msg
