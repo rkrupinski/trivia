@@ -89,10 +89,10 @@ view { homePage, router } =
                 Html.map HomePageMsg <| HomePage.view homePage
 
             Just (Router.View gameId) ->
-                p [] [ text <| "View: " ++ (toString gameId) ]
+                p [] [ text <| "View: " ++ gameId ]
 
             Just (Router.Play gameId playerId) ->
-                p [] [ text <| "Play: " ++ (toString gameId) ++ (toString playerId) ]
+                p [] [ text <| "Play: " ++ gameId ++ playerId ]
 
             _ ->
                 text ""

@@ -54,7 +54,7 @@ update msg (Model model) =
                     { model
                         | pending = False
                     }
-                    ! [ Navigation.newUrl <| "#/" ++ (toString id) ]
+                    ! [ Navigation.newUrl <| "#/" ++ id ]
 
         GameStarted (Err err) ->
             let

@@ -9,7 +9,7 @@ module Router
         )
 
 import Navigation
-import UrlParser exposing ((</>), top, int, oneOf, map, parseHash)
+import UrlParser exposing ((</>), top, string, oneOf, map, parseHash)
 import Data.Game exposing (GameId)
 import Data.Player exposing (PlayerId)
 
@@ -66,6 +66,6 @@ hashParser : UrlParser.Parser (Route -> a) a
 hashParser =
     oneOf
         [ map Home top
-        , map View <| int
-        , map Play <| int </> int
+        , map View <| string
+        , map Play <| string </> string
         ]
