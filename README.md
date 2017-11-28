@@ -1,1 +1,6 @@
-# trivia
+# Trivia
+
+``docker-compose up``
+
+- ``127.0.0.1:4000`` (backend/api)
+- ``127.0.0.1:8000`` (client)
