@@ -20,7 +20,9 @@ defmodule AppWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", AppWeb do
-  #   pipe_through :api
-  # end
+  scope "/api/v1", AppWeb do
+    pipe_through :api
+
+    resources "/questions", QuestionController, except: [:new, :edit]
+  end
 end
