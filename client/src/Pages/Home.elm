@@ -46,26 +46,18 @@ update msg (Model model) =
                 ! [ Http.send GameStarted newGame ]
 
         GameStarted (Ok { id }) ->
-            let
-                _ =
-                    Debug.log "ok" id
-            in
-                Model
-                    { model
-                        | pending = False
-                    }
-                    ! [ Navigation.newUrl <| "#/" ++ id ]
+            Model
+                { model
+                    | pending = False
+                }
+                ! [ Navigation.newUrl <| "#/" ++ id ]
 
         GameStarted (Err err) ->
-            let
-                _ =
-                    Debug.log "nope" err
-            in
-                Model
-                    { model
-                        | pending = False
-                    }
-                    ! []
+            Model
+                { model
+                    | pending = False
+                }
+                ! []
 
 
 view : Model -> Html Msg
