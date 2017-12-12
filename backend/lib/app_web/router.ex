@@ -24,5 +24,7 @@ defmodule AppWeb.Router do
     pipe_through :api
 
     resources "/questions", QuestionController, except: [:new, :edit]
+    resources "/games", GameController, except: [:edit]
+    resources "/players", PlayerController, except: [:edit]
   end
 end

@@ -8,3 +8,12 @@
 ## Reset db and populate with questions 
 
 ``./mix ecto.reset``
+
+## For creating object (e.g. game object):
+```
+{
+    "game": {
+        ..fields
+    }
+}
+```
