@@ -7,20 +7,22 @@ import Router
 
 
 type Msg
-    = HomePageMsg HomePage.Msg
+    = SetRoute (Maybe Router.Route)
     | RouterMsg Router.Msg
-    | UrlChange Navigation.Location
+
+
+type Page
+    = Home HomePage.Model
 
 
 type alias Model =
-    { homePage : HomePage.Model
-    , router : Router.Model
+    { router : Router.Model
     }
 
 
 main : Program Never Model Msg
 main =
-    Navigation.program UrlChange
+    Navigation.program (Router.fromLocation >> SetRoute)
         { init = init
         , view = view
         , update = update
@@ -31,67 +33,44 @@ main =
 init : Navigation.Location -> ( Model, Cmd Msg )
 init location =
     let
-        ( homePage, homePageCmd ) =
-            HomePage.init
-
-        ( router, routerCmd ) =
-            Router.init location
+        ( router, cmd ) =
+            Router.init <| Router.fromLocation location
     in
-        Model homePage router
-            ! [ Cmd.map HomePageMsg homePageCmd
-              , Cmd.map RouterMsg routerCmd
+        Model router
+            ! [ Cmd.map RouterMsg cmd
               ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ homePage, router } as model) =
+update msg ({ router } as model) =
     case msg of
-        HomePageMsg homePageMsg ->
-            let
-                ( homePage_, cmd ) =
-                    HomePage.update homePageMsg homePage
-            in
-                { model
-                    | homePage = homePage_
-                }
-                    ! [ Cmd.map HomePageMsg cmd ]
-
-        RouterMsg routerMsg ->
+        SetRoute maybeRoute ->
             let
                 ( router_, cmd ) =
-                    Router.update routerMsg router
+                    Router.update (Router.SetRoute maybeRoute) router
             in
-                { model
-                    | router = router_
-                }
-                    ! [ Cmd.map RouterMsg cmd ]
+                Model router_ ! [ Cmd.map RouterMsg cmd ]
 
-        UrlChange location ->
-            let
-                ( router_, cmd ) =
-                    Router.update (Router.UrlChange location) router
-            in
-                { model
-                    | router = router_
-                }
-                    ! [ Cmd.map RouterMsg cmd ]
+        RouterMsg _ ->
+            -- ¯\_(ツ)_/¯
+            model ! []
 
 
 view : Model -> Html Msg
-view { homePage, router } =
+view { router } =
     let
-        route : Maybe Router.Route
+        route : Router.Route
         route =
             Router.getRoute router
     in
         case route of
-            Just (Router.Home) ->
-                Html.map HomePageMsg <| HomePage.view homePage
+            Router.Home ->
+                p [] [ text "Home" ]
 
-            Just (Router.View gameId) ->
+            Router.View gameId ->
                 p [] [ text <| "View: " ++ gameId ]
 
-            Just (Router.Play gameId playerId) ->
+            Router.Play gameId playerId ->
                 p [] [ text <| "Play: " ++ gameId ++ playerId ]
 
             _ ->

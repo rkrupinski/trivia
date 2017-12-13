@@ -3,69 +3,65 @@ module Router
         ( init
         , update
         , getRoute
+        , fromLocation
         , Model
         , Route(..)
-        , Msg(UrlChange)
+        , Msg(SetRoute)
         )
 
 import Navigation
-import UrlParser exposing ((</>), top, string, oneOf, map, parseHash)
+import UrlParser exposing ((</>), top, s, string, oneOf, map, parseHash)
 import Data.Game exposing (GameId)
 import Data.Player exposing (PlayerId)
 
 
 type Route
-    = Home
+    = NotFound
+    | Home
     | View GameId
     | Play GameId PlayerId
 
 
 type Msg
-    = UrlChange Navigation.Location
+    = SetRoute (Maybe Route)
 
 
 type Model
     = Model (Maybe Route)
 
 
-init : Navigation.Location -> ( Model, Cmd Msg )
-init location =
-    let
-        route : Maybe Route
-        route =
-            computeRoute location
-
-        cmd : Cmd Msg
-        cmd =
-            case route of
-                Just _ ->
-                    Cmd.none
-
-                _ ->
-                    Navigation.newUrl "#/"
-    in
-        Model route ! [ cmd ]
+init : Maybe Route -> ( Model, Cmd Msg )
+init maybeRoute =
+    Model maybeRoute ! [ redirectIfNeeded maybeRoute ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update (UrlChange location) _ =
-    init location
+update (SetRoute maybeRoute) _ =
+    init maybeRoute
 
 
-computeRoute : Navigation.Location -> Maybe Route
-computeRoute location =
-    parseHash hashParser location
+redirectIfNeeded : Maybe Route -> Cmd Msg
+redirectIfNeeded maybeRoute =
+    maybeRoute
+        |> Maybe.map (always <| Cmd.none)
+        |> Maybe.withDefault (Navigation.newUrl "#/")
 
 
-getRoute : Model -> Maybe Route
-getRoute (Model route) =
-    route
+fromLocation : Navigation.Location -> Maybe Route
+fromLocation location =
+    parseHash routeParser location
 
 
-hashParser : UrlParser.Parser (Route -> a) a
-hashParser =
+getRoute : Model -> Route
+getRoute (Model maybeRoute) =
+    maybeRoute
+        |> Maybe.withDefault NotFound
+
+
+routeParser : UrlParser.Parser (Route -> a) a
+routeParser =
     oneOf
-        [ map Home top
+        [ map Home <| s ""
         , map View <| string
         , map Play <| string </> string
         ]
