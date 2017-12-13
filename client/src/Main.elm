@@ -93,13 +93,13 @@ view : Model -> Html Msg
 view { page } =
     case page of
         Home homeModel ->
-            Html.map (toPageMsg HomeMsg) <| HomePage.view homeModel
+            Html.map (toPageMsg HomeMsg) (HomePage.view homeModel)
 
         View viewModel ->
-            p [] [ text <| "View: " ++ (toString viewModel) ]
+            Html.map (toPageMsg ViewMsg) (ViewPage.view viewModel)
 
         Play playModel ->
-            p [] [ text <| "Play: " ++ (toString playModel) ]
+            Html.map (toPageMsg PlayMsg) (PlayPage.view playModel)
 
         _ ->
             text ""
