@@ -12,7 +12,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Navigation
-import Request.Home exposing (newGame)
+import Request.Game exposing (newGame)
 import Data.Game exposing (Game)
 
 

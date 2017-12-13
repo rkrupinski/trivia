@@ -4,6 +4,7 @@ import Html exposing (..)
 import Navigation
 import Pages.Home as HomePage
 import Pages.View as ViewPage
+import Pages.Play as PlayPage
 import Router
 
 
@@ -14,13 +15,15 @@ type Msg
 
 
 type InternalPageMsg
-    = HomePageMsg HomePage.Msg
-    | ViewPageMsg ViewPage.Msg
+    = HomeMsg HomePage.Msg
+    | ViewMsg ViewPage.Msg
+    | PlayMsg PlayPage.Msg
 
 
 type Page
     = Home HomePage.Model
     | View ViewPage.Model
+    | Play PlayPage.Model
     | NotFound
 
 
@@ -90,13 +93,14 @@ view : Model -> Html Msg
 view { page } =
     case page of
         Home homeModel ->
-            p [] [ text <| "Home: " ++ (toString homeModel) ]
+            Html.map (toPageMsg HomeMsg) <| HomePage.view homeModel
 
         View viewModel ->
             p [] [ text <| "View: " ++ (toString viewModel) ]
 
-        -- Play playModel ->
-        --     p [] [ text <| "Play: " ++ (toString playModel) ]
+        Play playModel ->
+            p [] [ text <| "Play: " ++ (toString playModel) ]
+
         _ ->
             text ""
 
@@ -114,14 +118,23 @@ getPage route =
                 ( model, cmd ) =
                     HomePage.init
             in
-                ( Home model, Cmd.map (HomePageMsg >> PageMsg) cmd )
+                ( Home model, Cmd.map (toPageMsg HomeMsg) cmd )
 
         Router.View gameId ->
+            -- TODO: init with GameId
             let
                 ( model, cmd ) =
                     ViewPage.init
             in
-                ( View model, Cmd.map (ViewPageMsg >> PageMsg) cmd )
+                ( View model, Cmd.map (toPageMsg ViewMsg) cmd )
+
+        Router.Play gameId playerId ->
+            -- TODO: init with GameId & PlayerId
+            let
+                ( model, cmd ) =
+                    PlayPage.init
+            in
+                ( Play model, Cmd.map (toPageMsg PlayMsg) cmd )
 
         _ ->
             ( NotFound, Cmd.none )
@@ -130,19 +143,31 @@ getPage route =
 updatePage : Page -> InternalPageMsg -> ( Page, Cmd Msg )
 updatePage page msg =
     case ( page, msg ) of
-        ( Home homeModel, HomePageMsg homeMsg ) ->
+        ( Home homeModel, HomeMsg homeMsg ) ->
             let
                 ( model, cmd ) =
                     HomePage.update homeMsg homeModel
             in
-                ( Home model, Cmd.map (HomePageMsg >> PageMsg) cmd )
+                ( Home model, Cmd.map (toPageMsg HomeMsg) cmd )
 
-        ( View viewModel, ViewPageMsg viewMsg ) ->
+        ( View viewModel, ViewMsg viewMsg ) ->
             let
                 ( model, cmd ) =
                     ViewPage.update viewMsg viewModel
             in
-                ( View model, Cmd.map (ViewPageMsg >> PageMsg) cmd )
+                ( View model, Cmd.map (toPageMsg ViewMsg) cmd )
+
+        ( Play playModel, PlayMsg playMsg ) ->
+            let
+                ( model, cmd ) =
+                    PlayPage.update playMsg playModel
+            in
+                ( Play model, Cmd.map (toPageMsg PlayMsg) cmd )
 
         _ ->
             ( page, Cmd.none )
+
+
+toPageMsg : (a -> InternalPageMsg) -> (a -> Msg)
+toPageMsg internalPageMsg =
+    PageMsg << internalPageMsg

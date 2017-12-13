@@ -2,10 +2,11 @@ module Data.Game
     exposing
         ( Game
         , GameId
-        , decoder
+        , gameDecoder
         )
 
 import Json.Decode as Decode
+import Request.Helpers exposing (rootDecoder)
 
 
 type alias GameId =
@@ -17,6 +18,8 @@ type alias Game =
     }
 
 
-decoder : Decode.Decoder Game
-decoder =
-    Decode.map Game <| Decode.field "id" Decode.string
+gameDecoder : Decode.Decoder Game
+gameDecoder =
+    rootDecoder <|
+        Decode.map Game <|
+            Decode.field "id" Decode.string
