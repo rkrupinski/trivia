@@ -1,9 +1,13 @@
-module Request.Game exposing (newGame)
+module Request.Game
+    exposing
+        ( newGame
+        , gameData
+        )
 
 import Http
 import HttpBuilder
 import Json.Encode as Encode
-import Data.Game exposing (Game, gameDecoder)
+import Data.Game exposing (Game, GameId, gameDecoder)
 import Request.Helpers exposing (apiUrl)
 
 
@@ -24,5 +28,15 @@ newGame =
         |> apiUrl
         |> HttpBuilder.post
         |> HttpBuilder.withJsonBody newGameTmpBody
+        |> HttpBuilder.withExpect (Http.expectJson gameDecoder)
+        |> HttpBuilder.toRequest
+
+
+gameData : GameId -> Http.Request Game
+gameData gameId =
+    "/games/"
+        |> flip (++) gameId
+        |> apiUrl
+        |> HttpBuilder.get
         |> HttpBuilder.withExpect (Http.expectJson gameDecoder)
         |> HttpBuilder.toRequest
