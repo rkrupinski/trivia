@@ -11,7 +11,7 @@ defmodule AppWeb.GameController do
     render(conn, "index.json", games: games)
   end
 
-  def create(conn, %{"game" => game_params}) do
+  def create(conn, game_params) do
     with {:ok, %Game{} = game} <- Games.create_game(game_params) do
       conn
       |> put_status(:created)
