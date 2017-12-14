@@ -22,14 +22,18 @@ type alias Game =
 
 
 type GameStatus
-    = Opened
+    = Started
+    | Finished
 
 
 statusFromString : String -> Decode.Decoder GameStatus
 statusFromString statusStr =
     case statusStr of
-        "opened" ->
-            Decode.succeed Opened
+        "started" ->
+            Decode.succeed Started
+
+        "finished" ->
+            Decode.succeed Finished
 
         _ ->
             Decode.fail <| "Invalid status: " ++ statusStr
