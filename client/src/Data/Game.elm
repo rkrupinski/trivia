@@ -2,6 +2,7 @@ module Data.Game
     exposing
         ( Game
         , GameId
+        , GameStatus
         , gameDecoder
         )
 
@@ -16,15 +17,15 @@ type alias GameId =
 type alias Game =
     { id : GameId
     , can_join : Bool
-    , status : Status
+    , status : GameStatus
     }
 
 
-type Status
+type GameStatus
     = Opened
 
 
-statusFromString : String -> Decode.Decoder Status
+statusFromString : String -> Decode.Decoder GameStatus
 statusFromString statusStr =
     case statusStr of
         "opened" ->
@@ -34,7 +35,7 @@ statusFromString statusStr =
             Decode.fail <| "Invalid status: " ++ statusStr
 
 
-statusDecoder : Decode.Decoder Status
+statusDecoder : Decode.Decoder GameStatus
 statusDecoder =
     Decode.string
         |> Decode.andThen statusFromString

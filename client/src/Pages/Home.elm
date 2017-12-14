@@ -24,7 +24,7 @@ type Model
 
 type Msg
     = NewGame
-    | GameStarted (Result Http.Error Game)
+    | GameCreated (Result Http.Error Game)
 
 
 init : ( Model, Cmd Msg )
@@ -43,16 +43,16 @@ update msg (Model model) =
                 { model
                     | pending = True
                 }
-                ! [ Http.send GameStarted newGame ]
+                ! [ Http.send GameCreated newGame ]
 
-        GameStarted (Ok { id }) ->
+        GameCreated (Ok { id }) ->
             Model
                 { model
                     | pending = False
                 }
                 ! [ Navigation.newUrl <| "#/" ++ id ]
 
-        GameStarted (Err err) ->
+        GameCreated (Err err) ->
             Model
                 { model
                     | pending = False

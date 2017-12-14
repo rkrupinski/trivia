@@ -121,10 +121,9 @@ getPage route =
                 ( Home model, Cmd.map (toPageMsg HomeMsg) cmd )
 
         Router.View gameId ->
-            -- TODO: init with GameId
             let
                 ( model, cmd ) =
-                    ViewPage.init
+                    ViewPage.init gameId
             in
                 ( View model, Cmd.map (toPageMsg ViewMsg) cmd )
 

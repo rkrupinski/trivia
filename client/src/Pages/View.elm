@@ -8,26 +8,33 @@ module Pages.View
         )
 
 import Html exposing (..)
+import Http
+import Data.Game exposing (GameId, Game)
+import Request.Game exposing (gameData)
 
 
 type Model
-    = Model {}
+    = Model (Maybe Game)
 
 
 type Msg
-    = Noop
+    = GameData (Result Http.Error Game)
 
 
-init : ( Model, Cmd Msg )
-init =
-    Model
-        {}
-        ! []
+init : GameId -> ( Model, Cmd Msg )
+init gameId =
+    Model Nothing
+        ! [ Http.send GameData <| gameData gameId ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg (Model model) =
-    Model model ! []
+update msg _ =
+    case msg of
+        GameData (Ok game) ->
+            Model (Just game) ! []
+
+        GameData (Err _) ->
+            Model Nothing ! []
 
 
 view : Model -> Html Msg
