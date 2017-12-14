@@ -13,7 +13,7 @@ defmodule App.Games.Game do
     many_to_many :questions, Question, join_through: "games_questions"
 
     field :can_join, :boolean, default: true
-    field :status, :string
+    field :status, :string, default: "started"
 
     timestamps()
   end
