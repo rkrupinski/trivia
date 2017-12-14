@@ -2,7 +2,7 @@ module Data.Game
     exposing
         ( Game
         , GameId
-        , GameStatus
+        , GameStatus(..)
         , gameDecoder
         )
 

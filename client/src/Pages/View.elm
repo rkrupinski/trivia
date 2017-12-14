@@ -8,35 +8,69 @@ module Pages.View
         )
 
 import Html exposing (..)
-import Http
-import Data.Game exposing (GameId, Game)
+import RemoteData exposing (..)
+import Data.Game as Game exposing (GameId, Game)
 import Request.Game exposing (gameData)
+import Components.JoinGame as JoinGame
 
 
 type Model
-    = Model (Maybe Game)
+    = Model (WebData Game) (Maybe JoinGame.Model)
 
 
 type Msg
-    = GameData (Result Http.Error Game)
+    = GameData (WebData Game)
+    | JoinGameMsg JoinGame.Msg
 
 
 init : GameId -> ( Model, Cmd Msg )
 init gameId =
-    Model Nothing
-        ! [ Http.send GameData <| gameData gameId ]
+    Model Loading Nothing
+        ! [ gameData gameId
+                |> sendRequest
+                |> Cmd.map GameData
+          ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg _ =
+update msg (Model gameData joinGame) =
     case msg of
-        GameData (Ok game) ->
-            Model (Just game) ! []
+        GameData response ->
+            Model response joinGame ! []
 
-        GameData (Err _) ->
-            Model Nothing ! []
+        JoinGameMsg joinGameMsg ->
+            let
+                ( joinGame_, cmd ) =
+                    joinGame
+                        |> ensureJoinGame
+                        |> JoinGame.update joinGameMsg
+            in
+                Model gameData (Just joinGame_)
+                    ! [ Cmd.map JoinGameMsg cmd ]
 
 
 view : Model -> Html Msg
-view model =
-    p [] [ text <| "View: " ++ (toString model) ]
+view (Model gameData joinGame) =
+    case gameData of
+        Success { can_join, status } ->
+            case ( can_join, status ) of
+                ( True, _ ) ->
+                    Html.map JoinGameMsg
+                        (joinGame
+                            |> ensureJoinGame
+                            |> JoinGame.view
+                        )
+
+                ( False, Game.Started ) ->
+                    text "Game in progress"
+
+                _ ->
+                    text "Display results"
+
+        _ ->
+            text ""
+
+
+ensureJoinGame : Maybe JoinGame.Model -> JoinGame.Model
+ensureJoinGame =
+    Maybe.withDefault JoinGame.init
