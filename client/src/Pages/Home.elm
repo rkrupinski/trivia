@@ -14,6 +14,7 @@ import Http
 import Navigation
 import Request.Game exposing (newGame)
 import Data.Game exposing (Game)
+import Utils exposing (gameUrl)
 
 
 type Model
@@ -50,7 +51,7 @@ update msg (Model model) =
                 { model
                     | pending = False
                 }
-                ! [ Navigation.newUrl <| "#/" ++ id ]
+                ! [ Navigation.newUrl <| gameUrl id ]
 
         GameCreated (Err err) ->
             Model

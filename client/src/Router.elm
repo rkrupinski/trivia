@@ -13,6 +13,7 @@ import Navigation
 import UrlParser exposing ((</>), top, s, string, oneOf, map, parseHash)
 import Data.Game exposing (GameId)
 import Data.Player exposing (PlayerId)
+import Utils exposing (homeUrl)
 
 
 type Route
@@ -44,7 +45,7 @@ redirectIfNeeded : Maybe Route -> Cmd Msg
 redirectIfNeeded maybeRoute =
     maybeRoute
         |> Maybe.map (always <| Cmd.none)
-        |> Maybe.withDefault (Navigation.newUrl "#/")
+        |> Maybe.withDefault (Navigation.newUrl homeUrl)
 
 
 fromLocation : Navigation.Location -> Maybe Route

@@ -15,7 +15,7 @@ import Components.JoinGame as JoinGame
 
 
 type Model
-    = Model (WebData Game) (Maybe JoinGame.Model)
+    = Model (WebData Game) JoinGame.Model
 
 
 type Msg
@@ -25,7 +25,7 @@ type Msg
 
 init : GameId -> ( Model, Cmd Msg )
 init gameId =
-    Model Loading Nothing
+    Model Loading (JoinGame.init gameId)
         ! [ gameData gameId
                 |> sendRequest
                 |> Cmd.map GameData
@@ -41,11 +41,9 @@ update msg (Model gameData joinGame) =
         JoinGameMsg joinGameMsg ->
             let
                 ( joinGame_, cmd ) =
-                    joinGame
-                        |> ensureJoinGame
-                        |> JoinGame.update joinGameMsg
+                    JoinGame.update joinGameMsg joinGame
             in
-                Model gameData (Just joinGame_)
+                Model gameData joinGame_
                     ! [ Cmd.map JoinGameMsg cmd ]
 
 
@@ -55,11 +53,7 @@ view (Model gameData joinGame) =
         Success { can_join, status } ->
             case ( can_join, status ) of
                 ( True, _ ) ->
-                    Html.map JoinGameMsg
-                        (joinGame
-                            |> ensureJoinGame
-                            |> JoinGame.view
-                        )
+                    Html.map JoinGameMsg <| JoinGame.view joinGame
 
                 ( False, Game.Started ) ->
                     text "Game in progress"
@@ -69,8 +63,3 @@ view (Model gameData joinGame) =
 
         _ ->
             text ""
-
-
-ensureJoinGame : Maybe JoinGame.Model -> JoinGame.Model
-ensureJoinGame =
-    Maybe.withDefault JoinGame.init
