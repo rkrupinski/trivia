@@ -39,4 +39,11 @@ defmodule AppWeb.GameController do
       send_resp(conn, :no_content, "")
     end
   end
+
+  def join(conn, %{"id" => id}) do
+    game = Games.get_game!(id)
+    {:ok, player} = Games.join_game(id)
+    render(conn, "joined.json", game: game, player: player)
+  end
+
 end

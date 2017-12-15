@@ -197,4 +197,11 @@ defmodule App.Games do
   def change_player(%Player{} = player) do
     Player.changeset(player, %{})
   end
+
+  @doc false
+  def join_game(id) do
+    %Player{}
+    |> Player.changeset(%{name: "Rambo"})
+    |> Repo.insert()
+  end
 end

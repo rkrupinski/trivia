@@ -15,4 +15,11 @@ defmodule AppWeb.GameView do
       can_join: game.can_join,
       status: game.status}
   end
+
+  def render("joined.json", %{game: game, player: player}) do
+    %{data:
+      %{game_id: game.id,
+        player_id: player.id}
+    }
+  end
 end

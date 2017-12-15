@@ -23,6 +23,8 @@ defmodule AppWeb.Router do
   scope "/api/v1", AppWeb do
     pipe_through :api
 
+    post "/games/:id/join", GameController, :join
+
     resources "/questions", QuestionController, except: [:new, :edit]
     resources "/games", GameController, except: [:edit]
     resources "/players", PlayerController, except: [:edit]
