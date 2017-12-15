@@ -18,8 +18,7 @@ defmodule AppWeb.GameView do
 
   def render("joined.json", %{game: game, player: player}) do
     %{data:
-      %{game_id: game.id,
-        player_id: player.id}
+      %{player_id: player.id}
     }
   end
 end
