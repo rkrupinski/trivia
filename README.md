@@ -9,11 +9,3 @@
 
 ``./mix ecto.reset``
 
-## For creating object (e.g. game object):
-```
-{
-    "game": {
-        ..fields
-    }
-}
-```
