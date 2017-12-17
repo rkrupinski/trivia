@@ -8,10 +8,14 @@ module Pages.View
         )
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import RemoteData exposing (..)
 import Data.Game as Game exposing (GameId, Game)
 import Request.Game exposing (gameData)
 import Components.JoinGame as JoinGame
+import Components.GameInProgress as GameInProgress
+import Components.Summary as Summary
+import Utils exposing (homeUrl)
 
 
 type Model
@@ -49,17 +53,27 @@ update msg (Model gameData joinGame) =
 
 view : Model -> Html Msg
 view (Model gameData joinGame) =
-    case gameData of
-        Success { can_join, status } ->
-            case ( can_join, status ) of
-                ( True, _ ) ->
-                    Html.map JoinGameMsg <| JoinGame.view joinGame
+    let
+        pageContent : Html Msg
+        pageContent =
+            case gameData of
+                Success { can_join, status } ->
+                    case ( can_join, status ) of
+                        ( True, _ ) ->
+                            Html.map JoinGameMsg <| JoinGame.view joinGame
 
-                ( False, Game.Started ) ->
-                    text "Game in progress"
+                        ( False, Game.Started ) ->
+                            GameInProgress.view
+
+                        _ ->
+                            Summary.view
 
                 _ ->
-                    text "Display results"
-
-        _ ->
-            text ""
+                    text ""
+    in
+        div []
+            [ pageContent
+            , p []
+                [ a [ href homeUrl ] [ text "Go back to the home page" ]
+                ]
+            ]

@@ -54,6 +54,7 @@ update msg (Model model) =
                 ! [ Navigation.newUrl <| gameUrl id ]
 
         GameCreated (Err err) ->
+            -- TODO: Error handling
             Model
                 { model
                     | pending = False

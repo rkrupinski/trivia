@@ -17,15 +17,12 @@ import Form.Validate as Validate
 import Form.Input as Input
 import Data.Game exposing (GameId)
 import Data.Player exposing (Joined)
-import Utils exposing (playUrl, formatError)
-
-
-type alias PlayerName =
-    String
+import Request.Game exposing (joinGame)
+import Utils exposing (playUrl, formatError, playUrl)
 
 
 type alias FormData =
-    { playerName : PlayerName
+    { playerName : String
     }
 
 
@@ -39,10 +36,7 @@ type Model
 
 type Msg
     = FormMsg Form.Msg
-
-
-
--- | Joined (Result Http.Error Joined)
+    | Joined (Result Http.Error Joined)
 
 
 init : GameId -> Model
@@ -55,31 +49,50 @@ init gameId =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg (Model ({ playerForm } as model)) =
+update msg (Model ({ gameId, playerForm } as model)) =
     case msg of
         FormMsg formMsg ->
-            let
-                playerForm_ : Form () FormData
-                playerForm_ =
-                    Form.update validation formMsg playerForm
-            in
-                Model
-                    { model
-                        | playerForm = playerForm_
-                    }
-                    ! []
+            case ( formMsg, Form.getOutput playerForm ) of
+                ( Form.Submit, Just { playerName } ) ->
+                    Model
+                        { model
+                            | pending = True
+                        }
+                        ! [ Http.send Joined <| joinGame gameId playerName ]
+
+                _ ->
+                    Model
+                        { model
+                            | playerForm = Form.update validation formMsg playerForm
+                        }
+                        ! []
+
+        Joined (Ok { playerId }) ->
+            Model
+                { model
+                    | pending = False
+                }
+                ! [ Navigation.newUrl <| playUrl gameId playerId ]
+
+        Joined (Err err) ->
+            -- TODO: Error handling
+            Model
+                { model
+                    | pending = False
+                }
+                ! []
 
 
 view : Model -> Html Msg
-view (Model { playerForm }) =
+view (Model { playerForm, pending }) =
     div []
         [ h1 [] [ text "Join game" ]
-        , Html.map FormMsg <| renderForm playerForm
+        , Html.map FormMsg <| renderForm playerForm pending
         ]
 
 
-renderForm : Form () FormData -> Html Form.Msg
-renderForm form =
+renderForm : Form () FormData -> Bool -> Html Form.Msg
+renderForm form pending =
     let
         renderErrorFor field =
             case field.liveError of
@@ -95,9 +108,11 @@ renderForm form =
     in
         Html.form
             [ onSubmit Form.Submit ]
-            [ Input.textInput playerName []
-            , text " "
-            , button [] [ text "Join" ]
+            [ Input.textInput playerName
+                [ placeholder "Player name"
+                , disabled pending
+                ]
+            , button [ disabled pending ] [ text "Join" ]
             , br [] []
             , renderErrorFor playerName
             ]

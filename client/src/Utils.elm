@@ -27,8 +27,7 @@ formatError fieldLabel error =
             fieldLabel ++ " is required"
 
         Error.InvalidString ->
-            -- ¯\_(ツ)_/¯
-            fieldLabel ++ " is required"
+            fieldLabel ++ " is invalid"
 
         _ ->
             "Error"
