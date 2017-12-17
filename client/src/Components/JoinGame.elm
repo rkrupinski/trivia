@@ -86,7 +86,7 @@ update msg (Model ({ gameId, playerForm } as model)) =
 view : Model -> Html Msg
 view (Model { playerForm, pending }) =
     div []
-        [ h1 [] [ text "Join game" ]
+        [ p [] [ text "Join the game!" ]
         , Html.map FormMsg <| renderForm playerForm pending
         ]
 

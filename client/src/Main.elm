@@ -2,16 +2,26 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Navigation
+import Material
+import Material.Grid as Grid
+import Material.Scheme as Scheme
+import Material.Color as Color
+import Material.Layout as Layout
+import Material.Options as Options
+import Material.Icon as Icon
 import Pages.Home as HomePage
 import Pages.View as ViewPage
 import Pages.Play as PlayPage
 import Router
+import Utils exposing (homeUrl)
 
 
 type Msg
     = SetRoute (Maybe Router.Route)
     | RouterMsg Router.Msg
     | PageMsg InternalPageMsg
+    | Mdl (Material.Msg Msg)
+    | ToggleDrawer
 
 
 type InternalPageMsg
@@ -30,6 +40,7 @@ type Page
 type alias Model =
     { router : Router.Model
     , page : Page
+    , mdl : Material.Model
     }
 
 
@@ -52,14 +63,15 @@ init location =
         ( page, pageCmd ) =
             getPage <| Router.getRoute router
     in
-        Model router page
+        Model router page Material.model
             ! [ Cmd.map RouterMsg routerCmd
               , pageCmd
+              , Layout.sub0 Mdl
               ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ router, page } as model) =
+update msg ({ router, page, mdl } as model) =
     case msg of
         SetRoute maybeRoute ->
             let
@@ -69,7 +81,7 @@ update msg ({ router, page } as model) =
                 ( page_, pageCmd ) =
                     getPage <| Router.getRoute router_
             in
-                Model router_ page_
+                Model router_ page_ mdl
                     ! [ Cmd.map RouterMsg cmd
                       , pageCmd
                       ]
@@ -88,26 +100,95 @@ update msg ({ router, page } as model) =
                 }
                     ! [ pageCmd ]
 
+        Mdl mdlMsg ->
+            let
+                ( model_, cmd ) =
+                    Material.update Mdl mdlMsg model
+            in
+                model_ ! [ cmd ]
+
+        ToggleDrawer ->
+            let
+                ( model_, cmd ) =
+                    update (Layout.toggleDrawer Mdl) model
+            in
+                model_ ! [ cmd ]
+
 
 view : Model -> Html Msg
-view { page } =
-    case page of
-        Home homeModel ->
-            Html.map (toPageMsg HomeMsg) (HomePage.view homeModel)
+view { page, mdl } =
+    let
+        title : Html Msg
+        title =
+            Layout.title [] [ text "Trivia" ]
 
-        View viewModel ->
-            Html.map (toPageMsg ViewMsg) (ViewPage.view viewModel)
+        header : Html Msg
+        header =
+            Layout.row [] [ title ]
 
-        Play playModel ->
-            Html.map (toPageMsg PlayMsg) (PlayPage.view playModel)
+        navIcon : String -> Html never
+        navIcon iconType =
+            Icon.view iconType [ Options.css "marginRight" ".25em" ]
 
-        _ ->
-            text ""
+        navigation : Html Msg
+        navigation =
+            Layout.navigation []
+                [ Layout.link
+                    [ Layout.href homeUrl
+                    , Options.onClick ToggleDrawer
+                    ]
+                    [ navIcon "home"
+                    , text "Home page"
+                    ]
+                , Layout.link
+                    [ Layout.href "https://github.com/rkrupinski/trivia" ]
+                    [ navIcon "code"
+                    , text "Browse source"
+                    ]
+                ]
+
+        currentPage : Html Msg
+        currentPage =
+            case page of
+                Home homeModel ->
+                    Html.map (toPageMsg HomeMsg) (HomePage.view homeModel)
+
+                View viewModel ->
+                    Html.map (toPageMsg ViewMsg) (ViewPage.view viewModel)
+
+                Play playModel ->
+                    Html.map (toPageMsg PlayMsg) (PlayPage.view playModel)
+
+                _ ->
+                    text ""
+
+        layout : Html Msg -> Html Msg
+        layout contents =
+            Grid.grid
+                [ Options.css "maxWidth" "960px"
+                ]
+                [ Grid.cell
+                    [ Grid.size Grid.All 12 ]
+                    [ contents ]
+                ]
+    in
+        Scheme.topWithScheme Color.BlueGrey Color.Red <|
+            Layout.render Mdl
+                mdl
+                [ Layout.fixedHeader ]
+                { header = [ header ]
+                , drawer =
+                    [ title
+                    , navigation
+                    ]
+                , tabs = ( [], [] )
+                , main = [ layout currentPage ]
+                }
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+subscriptions { mdl } =
+    Sub.batch [ Layout.subs Mdl mdl ]
 
 
 getPage : Router.Route -> ( Page, Cmd Msg )

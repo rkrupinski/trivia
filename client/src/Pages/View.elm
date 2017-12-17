@@ -8,18 +8,19 @@ module Pages.View
         )
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import RemoteData exposing (..)
 import Data.Game as Game exposing (GameId, Game)
 import Request.Game exposing (gameData)
 import Components.JoinGame as JoinGame
 import Components.GameInProgress as GameInProgress
 import Components.Summary as Summary
-import Utils exposing (homeUrl)
 
 
 type Model
-    = Model (WebData Game) JoinGame.Model
+    = Model
+        { gameData : WebData Game
+        , joinGame : JoinGame.Model
+        }
 
 
 type Msg
@@ -29,7 +30,10 @@ type Msg
 
 init : GameId -> ( Model, Cmd Msg )
 init gameId =
-    Model Loading (JoinGame.init gameId)
+    Model
+        { gameData = Loading
+        , joinGame = JoinGame.init gameId
+        }
         ! [ gameData gameId
                 |> sendRequest
                 |> Cmd.map GameData
@@ -37,22 +41,29 @@ init gameId =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg (Model gameData joinGame) =
+update msg (Model ({ gameData, joinGame } as model)) =
     case msg of
         GameData response ->
-            Model response joinGame ! []
+            Model
+                { model
+                    | gameData = response
+                }
+                ! []
 
         JoinGameMsg joinGameMsg ->
             let
                 ( joinGame_, cmd ) =
                     JoinGame.update joinGameMsg joinGame
             in
-                Model gameData joinGame_
+                Model
+                    { model
+                        | joinGame = joinGame_
+                    }
                     ! [ Cmd.map JoinGameMsg cmd ]
 
 
 view : Model -> Html Msg
-view (Model gameData joinGame) =
+view (Model { gameData, joinGame }) =
     let
         pageContent : Html Msg
         pageContent =
@@ -71,9 +82,4 @@ view (Model gameData joinGame) =
                 _ ->
                     text ""
     in
-        div []
-            [ pageContent
-            , p []
-                [ a [ href homeUrl ] [ text "Go back to the home page" ]
-                ]
-            ]
+        div [] [ pageContent ]

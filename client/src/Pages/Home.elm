@@ -8,10 +8,11 @@ module Pages.Home
         )
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Http
 import Navigation
+import Material
+import Material.Button as Button
+import Material.Options as Options
 import Request.Game exposing (newGame)
 import Data.Game exposing (Game)
 import Utils exposing (gameUrl)
@@ -20,24 +21,27 @@ import Utils exposing (gameUrl)
 type Model
     = Model
         { pending : Bool
+        , mdl : Material.Model
         }
 
 
 type Msg
     = NewGame
     | GameCreated (Result Http.Error Game)
+    | Mdl (Material.Msg Msg)
 
 
 init : ( Model, Cmd Msg )
 init =
     Model
         { pending = False
+        , mdl = Material.model
         }
         ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg (Model model) =
+update msg (Model ({ mdl } as model)) =
     case msg of
         NewGame ->
             Model
@@ -61,14 +65,26 @@ update msg (Model model) =
                 }
                 ! []
 
+        Mdl mdlMsg ->
+            let
+                ( model_, cmd ) =
+                    Material.update Mdl mdlMsg model
+            in
+                Model model_ ! [ cmd ]
+
 
 view : Model -> Html Msg
-view (Model { pending }) =
+view (Model { pending, mdl }) =
     div []
-        [ h1 [] [ text "Trivia" ]
-        , button
-            [ onClick NewGame
-            , disabled pending
+        [ p [] [ text "Create a new game and invite another player!" ]
+        , Button.render Mdl
+            [ 0 ]
+            mdl
+            [ Button.raised
+            , Button.colored
+            , Button.ripple
+            , Options.onClick NewGame
+            , Options.disabled pending
             ]
             [ text "New game" ]
         ]
