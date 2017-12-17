@@ -9,7 +9,6 @@ module Pages.View
 
 import Html exposing (..)
 import RemoteData exposing (..)
-import Material
 import Material.Spinner as Loading
 import Data.Game as Game exposing (GameId, Game)
 import Request.Game exposing (gameData)
@@ -22,14 +21,12 @@ type Model
     = Model
         { gameData : WebData Game
         , joinGame : JoinGame.Model
-        , mdl : Material.Model
         }
 
 
 type Msg
     = GameData (WebData Game)
     | JoinGameMsg JoinGame.Msg
-    | Mdl (Material.Msg Msg)
 
 
 init : GameId -> ( Model, Cmd Msg )
@@ -37,7 +34,6 @@ init gameId =
     Model
         { gameData = Loading
         , joinGame = JoinGame.init gameId
-        , mdl = Material.model
         }
         ! [ gameData gameId
                 |> sendRequest
@@ -66,13 +62,6 @@ update msg (Model ({ gameData, joinGame } as model)) =
                     }
                     ! [ Cmd.map JoinGameMsg cmd ]
 
-        Mdl mdlMsg ->
-            let
-                ( model_, cmd ) =
-                    Material.update Mdl mdlMsg model
-            in
-                Model model_ ! [ cmd ]
-
 
 view : Model -> Html Msg
 view (Model { gameData, joinGame }) =
@@ -92,7 +81,10 @@ view (Model { gameData, joinGame }) =
                             Summary.view
 
                 Loading ->
-                    Loading.spinner [ Loading.active True ]
+                    Loading.spinner
+                        [ Loading.active True
+                        , Loading.singleColor True
+                        ]
 
                 _ ->
                     text ""
