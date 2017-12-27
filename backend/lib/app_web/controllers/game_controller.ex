@@ -13,6 +13,7 @@ defmodule AppWeb.GameController do
 
   def create(conn, game_params) do
     with {:ok, %Game{} = game} <- Games.create_game(game_params) do
+      game = Games.get_game!(game.id)
       conn
       |> put_status(:created)
       |> put_resp_header("location", game_path(conn, :show, game))
@@ -40,9 +41,9 @@ defmodule AppWeb.GameController do
     end
   end
 
-  def join(conn, %{"id" => id}) do
+  def join(conn, %{"id" => id, "player_name" => player_name}) do
     game = Games.get_game!(id)
-    {:ok, player} = Games.join_game(id)
+    player = Games.join_game(id, player_name)
     render(conn, "joined.json", game: game, player: player)
   end
 

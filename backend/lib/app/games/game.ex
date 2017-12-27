@@ -6,6 +6,7 @@ defmodule App.Games.Game do
   alias App.Questions.Question
 
   @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type Ecto.UUID
 
   schema "games" do
     belongs_to :current_question, Question
@@ -23,5 +24,6 @@ defmodule App.Games.Game do
     game
     |> cast(attrs, [:can_join, :status])
     |> validate_required([:status])
+    |> validate_length(:players, max: 2)
   end
 end

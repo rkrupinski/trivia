@@ -5,6 +5,7 @@ defmodule App.Games.Player do
   alias App.Games.Game
 
   @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type Ecto.UUID
 
   schema "players" do
     belongs_to :game, Game

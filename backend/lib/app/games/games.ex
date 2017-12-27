@@ -5,8 +5,10 @@ defmodule App.Games do
 
   import Ecto.Query, warn: false
   alias App.Repo
+  alias Ecto.Changeset
 
   alias App.Games.Game
+  alias App.Questions.Question
 
   @doc """
   Returns the list of games.
@@ -19,6 +21,9 @@ defmodule App.Games do
   """
   def list_games do
     Repo.all(Game)
+    |> Repo.preload(:questions)
+    |> Repo.preload(:players)
+    |> Repo.preload(questions: :answers)
   end
 
   @doc """
@@ -35,8 +40,12 @@ defmodule App.Games do
       ** (Ecto.NoResultsError)
 
   """
-  def get_game!(id), do: Repo.get!(Game, id)
-
+  def get_game!(id) do
+    Repo.get!(Game, id)
+    |> Repo.preload(:questions)
+    |> Repo.preload(:players)
+    |> Repo.preload(questions: :answers)
+  end
   @doc """
   Creates a game.
 
@@ -50,7 +59,10 @@ defmodule App.Games do
 
   """
   def create_game(attrs \\ %{}) do
-    %Game{}
+    questions = Repo.all(Question)
+    questions = Enum.take_random(questions, 10)
+
+    %Game{questions: questions}
     |> Game.changeset(attrs)
     |> Repo.insert()
   end
@@ -199,9 +211,10 @@ defmodule App.Games do
   end
 
   @doc false
-  def join_game(id) do
-    %Player{}
-    |> Player.changeset(%{name: "Rambo"})
-    |> Repo.insert()
+  def join_game(id, player_name) do
+    game = Repo.get!(Game, id)
+
+    player = Ecto.build_assoc(game, :players, %{name: player_name})
+    Repo.insert!(player)
   end
 end
