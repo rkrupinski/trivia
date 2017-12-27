@@ -26,4 +26,8 @@ defmodule App.Games.Game do
     |> validate_required([:status])
     |> validate_length(:players, max: 2)
   end
+
+  def is_playing(game) do
+    length(game.players) == 2
+  end
 end
