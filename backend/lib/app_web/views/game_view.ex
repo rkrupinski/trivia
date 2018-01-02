@@ -15,8 +15,7 @@ defmodule AppWeb.GameView do
 
   def render("game.json", %{game: game}) do
     %{id: game.id,
-      playing: Game.is_playing(game),
-      can_join: game.can_join,
+      can_join: Game.can_join(game),
       status: game.status,
       inserted_at: game.inserted_at,
       questions: render_many(game.questions, QuestionView, "question.json"),

@@ -13,7 +13,6 @@ defmodule App.Games.Game do
     has_many :players, Player
     many_to_many :questions, Question, join_through: "games_questions"
 
-    field :can_join, :boolean, default: true
     field :status, :string, default: "started"
 
     timestamps()
@@ -22,12 +21,12 @@ defmodule App.Games.Game do
   @doc false
   def changeset(%Game{} = game, attrs) do
     game
-    |> cast(attrs, [:can_join, :status])
+    |> cast(attrs, [:status])
     |> validate_required([:status])
     |> validate_length(:players, max: 2)
   end
 
-  def is_playing(game) do
-    length(game.players) == 2
+  def can_join(game) do
+    length(game.players) < 2
   end
 end
