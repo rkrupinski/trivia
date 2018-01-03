@@ -21,9 +21,13 @@ defmodule AppWeb.GameController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    game = Games.get_game!(id)
-    render(conn, "show.json", game: game)
+  def show(conn, params) do
+    game = Games.get_game!(params["id"])
+
+    case params["player_id"] do
+      nil -> render(conn, "show.json", game: game)
+      _ -> render(conn, "game_with_player_status.json", game: game, player: Games.get_player_or_none(params["player_id"]))
+    end
   end
 
   def update(conn, %{"id" => id, "game" => game_params}) do

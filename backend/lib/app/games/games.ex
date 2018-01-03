@@ -143,7 +143,13 @@ defmodule App.Games do
       ** (Ecto.NoResultsError)
 
   """
-  def get_player!(id), do: Repo.get!(Player, id)
+  def get_player!(id) do
+    Repo.get!(Player, id)
+  end
+
+  def get_player_or_none(id) do
+    Repo.get(Player, id)
+  end
 
   @doc """
   Creates a player.
