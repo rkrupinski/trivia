@@ -19,7 +19,7 @@ defmodule AppWeb.GameView do
     answers = for question <- game.questions do
       %{question_id: question.id,
         players: for player <- game.players do 
-          %{id: player.id, correct: false}
+          %{id: player.id, correct: Enum.random([true, false])}
         end
       }
     end
@@ -40,7 +40,7 @@ defmodule AppWeb.GameView do
     answers = for question <- game.questions do
       %{question_id: question.id,
         players: for player <- game.players do 
-          %{id: player.id, correct: false}
+          %{id: player.id, correct: Enum.random([true, false])}
         end
       }
     end
