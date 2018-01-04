@@ -223,4 +223,12 @@ defmodule App.Games do
     player = Ecto.build_assoc(game, :players, %{name: player_name})
     Repo.insert!(player)
   end
+
+  @doc false
+  def generate_answers do
+    Repo.all(Game)
+    |> Repo.preload(:questions)
+    |> Repo.preload(:players)
+    |> Repo.preload(questions: :answers)
+  end
 end

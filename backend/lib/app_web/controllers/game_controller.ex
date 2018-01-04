@@ -3,6 +3,10 @@ defmodule AppWeb.GameController do
 
   alias App.Games
   alias App.Games.Game
+  alias App.Games.PlayerAnswer
+  import Ecto.Query, warn: false
+  alias App.Repo
+  require Logger
 
   action_fallback AppWeb.FallbackController
 
@@ -51,4 +55,31 @@ defmodule AppWeb.GameController do
     render(conn, "joined.json", game: game, player: player)
   end
 
+  def generate_answers(conn, %{"id" => id}) do
+    game = Games.get_game!(id)
+
+    PlayerAnswer
+    |> Ecto.Query.where(game_id: ^game.id)
+    |> Repo.delete_all
+
+    # TODO: gemerate random answers
+    foo = for question <- game.questions do
+      %{question_id: question.id,
+        players: for player <- game.players do 
+          %{id: player.id, correct: false}
+        end
+      }
+    end
+
+    # foo |> inspect |> Logger.debug
+
+    game_answers = PlayerAnswer
+    |> Ecto.Query.where(game_id: ^game.id) 
+    |> Repo.all
+    |> Repo.preload(:question)
+    |> Repo.preload(:player)
+    |> Repo.preload(:answer)
+
+    render(conn, "game_answers.json", game_answers: game_answers)
+  end
 end

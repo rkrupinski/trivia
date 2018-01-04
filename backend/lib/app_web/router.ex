@@ -24,6 +24,7 @@ defmodule AppWeb.Router do
     pipe_through :api
 
     post "/games/:id/join", GameController, :join
+    post "/games/:id/generate-answers", GameController, :generate_answers
 
     resources "/questions", QuestionController, except: [:new, :edit]
     resources "/games", GameController, except: [:edit]
