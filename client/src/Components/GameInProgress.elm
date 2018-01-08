@@ -4,8 +4,12 @@ module Components.GameInProgress
         )
 
 import Html exposing (..)
+import Material.Options as Options
+import Material.Typography as Typography
 
 
 view : Html never
 view =
-    div [] [ text "Game in progress" ]
+    Options.styled p
+        [ Typography.headline ]
+        [ text "Game in progress 🎮" ]

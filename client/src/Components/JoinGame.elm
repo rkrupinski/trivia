@@ -56,11 +56,11 @@ init gameId =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg (Model ({ gameId, playerForm } as model)) =
+update msg (Model ({ gameId, playerForm, pending } as model)) =
     case msg of
         FormMsg formMsg ->
-            case ( formMsg, Form.getOutput playerForm ) of
-                ( Form.Submit, Just { playerName } ) ->
+            case ( formMsg, Form.getOutput playerForm, pending ) of
+                ( Form.Submit, Just { playerName }, False ) ->
                     Model
                         { model
                             | pending = True
