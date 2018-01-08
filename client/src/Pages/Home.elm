@@ -13,6 +13,7 @@ import Navigation
 import Material
 import Material.Button as Button
 import Material.Options as Options
+import Material.Typography as Typography
 import Request.Game exposing (newGame)
 import Data.Game exposing (Game)
 import Utils exposing (gameUrl)
@@ -76,7 +77,9 @@ update msg (Model ({ mdl } as model)) =
 view : Model -> Html Msg
 view (Model { pending, mdl }) =
     div []
-        [ p [] [ text "Create a new game and invite another player!" ]
+        [ Options.styled p
+            [ Typography.headline ]
+            [ text "Create a new game" ]
         , Button.render Mdl
             [ 0 ]
             mdl
@@ -86,5 +89,5 @@ view (Model { pending, mdl }) =
             , Options.onClick NewGame
             , Options.disabled pending
             ]
-            [ text "New game" ]
+            [ text "Create" ]
         ]

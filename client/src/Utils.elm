@@ -20,14 +20,14 @@ playUrl gameId playerId =
     "#/" ++ gameId ++ "/" ++ playerId
 
 
-formatError : String -> Error.ErrorValue e -> String
-formatError fieldLabel error =
-    case error of
-        Error.Empty ->
-            fieldLabel ++ " is required"
+formatError : Maybe (Error.ErrorValue e) -> String
+formatError maybeError =
+    case maybeError of
+        Just (Error.Empty) ->
+            "Required"
 
-        Error.InvalidString ->
-            fieldLabel ++ " is invalid"
+        Just (Error.InvalidString) ->
+            "Invalid value"
 
         _ ->
-            "Error"
+            ""

@@ -43,4 +43,4 @@ joinGame gameId playerName =
 
 joinGameBody : PlayerName -> Encode.Value
 joinGameBody playerName =
-    Encode.object [ ( "playerName", Encode.string playerName ) ]
+    Encode.object [ ( "player_name", Encode.string playerName ) ]

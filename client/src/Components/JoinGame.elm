@@ -8,13 +8,17 @@ module Components.JoinGame
         )
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Html.Events exposing (onSubmit, onInput)
 import Http
+import Material
+import Material.Textfield as Textfield
+import Material.Button as Button
+import Material.Options as Options
+import Material.Typography as Typography
 import Navigation
 import Form exposing (Form)
 import Form.Validate as Validate
-import Form.Input as Input
+import ElmFormMdl.Form.Material exposing (textfield, submitButton)
 import Data.Game exposing (GameId)
 import Data.Player exposing (Joined)
 import Request.Game exposing (joinGame)
@@ -31,12 +35,14 @@ type Model
         { gameId : GameId
         , playerForm : Form () FormData
         , pending : Bool
+        , mdl : Material.Model
         }
 
 
 type Msg
     = FormMsg Form.Msg
     | Joined (Result Http.Error Joined)
+    | Mdl (Material.Msg Msg)
 
 
 init : GameId -> Model
@@ -45,6 +51,7 @@ init gameId =
         { gameId = gameId
         , playerForm = Form.initial [] validation
         , pending = False
+        , mdl = Material.model
         }
 
 
@@ -82,39 +89,54 @@ update msg (Model ({ gameId, playerForm } as model)) =
                 }
                 ! []
 
+        Mdl mdlMsg ->
+            let
+                ( model_, cmd ) =
+                    Material.update Mdl mdlMsg model
+            in
+                Model model_ ! [ cmd ]
+
 
 view : Model -> Html Msg
-view (Model { playerForm, pending }) =
+view (Model { playerForm, pending, mdl }) =
     div []
-        [ p [] [ text "Join the game!" ]
-        , Html.map FormMsg <| renderForm playerForm pending
+        [ Options.styled p
+            [ Typography.headline ]
+            [ text "Join game" ]
+        , renderForm mdl playerForm pending
         ]
 
 
-renderForm : Form () FormData -> Bool -> Html Form.Msg
-renderForm form pending =
+renderForm : Material.Model -> Form () FormData -> Bool -> Html Msg
+renderForm mdl form pending =
     let
-        renderErrorFor field =
-            case field.liveError of
-                Just error ->
-                    p [] [ text <| formatError "Player name" error ]
-
-                Nothing ->
-                    text ""
-
         playerName : Form.FieldState () String
         playerName =
             Form.getFieldAsString "playerName" form
     in
         Html.form
-            [ onSubmit Form.Submit ]
-            [ Input.textInput playerName
-                [ placeholder "Player name"
-                , disabled pending
+            [ onSubmit (FormMsg Form.Submit) ]
+            [ textfield
+                FormMsg
+                Mdl
+                formatError
+                mdl
+                playerName
+                [ Textfield.label "Player name"
+                , Options.css "marginRight" "1em"
+                , Options.css "width" "10em"
+                , Options.disabled pending
                 ]
-            , button [ disabled pending ] [ text "Join" ]
-            , br [] []
-            , renderErrorFor playerName
+            , submitButton
+                FormMsg
+                Mdl
+                mdl
+                [ Button.ripple
+                , Button.colored
+                , Button.raised
+                , Options.disabled pending
+                ]
+                [ text "Join" ]
             ]
 
 
