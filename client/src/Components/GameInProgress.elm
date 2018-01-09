@@ -1,6 +1,6 @@
 module Components.GameInProgress
     exposing
-        ( view
+        ( render
         )
 
 import Html exposing (..)
@@ -8,8 +8,8 @@ import Material.Options as Options
 import Material.Typography as Typography
 
 
-view : Html never
-view =
+render : Html never
+render =
     Options.styled p
         [ Typography.headline ]
         [ text "Game in progress 🎮" ]

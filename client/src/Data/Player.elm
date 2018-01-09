@@ -2,7 +2,9 @@ module Data.Player
     exposing
         ( PlayerId
         , PlayerName
+        , Player
         , Joined
+        , playerDecoder
         , joinedDecoder
         )
 
@@ -18,9 +20,22 @@ type alias PlayerName =
     String
 
 
+type alias Player =
+    { id : PlayerId
+    , name : PlayerName
+    }
+
+
 type alias Joined =
     { playerId : PlayerId
     }
+
+
+playerDecoder : Decode.Decoder Player
+playerDecoder =
+    Decode.map2 Player
+        (Decode.field "id" Decode.string)
+        (Decode.field "name" Decode.string)
 
 
 joinedDecoder : Decode.Decoder Joined

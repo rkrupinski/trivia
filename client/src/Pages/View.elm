@@ -69,16 +69,16 @@ view (Model { gameData, joinGame }) =
         pageContent : Html Msg
         pageContent =
             case gameData of
-                Success { can_join, status } ->
+                Success ({ can_join, status } as data) ->
                     case ( can_join, status ) of
                         ( True, _ ) ->
                             Html.map JoinGameMsg <| JoinGame.view joinGame
 
                         ( False, Game.Started ) ->
-                            GameInProgress.view
+                            GameInProgress.render
 
                         _ ->
-                            Summary.view
+                            Summary.render data
 
                 Loading ->
                     Loading.spinner
